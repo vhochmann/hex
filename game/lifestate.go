@@ -1,13 +1,9 @@
 package game
 
-var LifeMortal = Mortal{}
-var LifeVampire = Vampire{}
-
-type LifeState interface{
-	Alive(*Player) bool
-	Update(*Game, *Player)
-	Move(*Game, *Player, int, int)
-}
+var (
+	LifeMortal = Mortal{}
+	LifeVampire = Vampire{}
+)
 
 type Mortal struct{}
 
