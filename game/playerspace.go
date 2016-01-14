@@ -1,10 +1,27 @@
 package game
 
+import(
+	"encoding/gob"
+	"os"
+	"fmt"
+)
+
 // PlayerBufferSize defines the size of our one PlayerBuffer
 const PlayerBufferSize int = 128
 
 // PlayerBuffer is an array of Players
 type PlayerBuffer [PlayerBufferSize]Player
+
+func (p *PlayerBuffer) Serialize(filename string) error {
+	dataFile, err := os.Create(fmt.Sprintf("data/save/%s.gob", filename))
+	if err == nil {
+		enc := gob.NewEncoder(dataFile)
+		enc.Encode(p)
+		dataFile.Close()
+		return nil
+	}
+	return err
+}
 
 // Allocate returns a pointer to an available Player, and nil if the
 // buffer is full.
@@ -41,6 +58,22 @@ type PlayerMatrix [FieldSize][FieldSize]*Player
 type PlayerSpace struct{
 	Buffer PlayerBuffer
 	Matrix PlayerMatrix
+}
+
+func (p *PlayerSpace) LoadPlayerBuffer(filename string) {
+	var inData PlayerBuffer
+	dataFile, err := os.Open(fmt.Sprintf("data/save/%s.gob", filename))
+	if err != nil {
+		return
+	}
+	
+	dec := gob.NewDecoder(dataFile)
+	err = dec.Decode(&inData)
+	if err != nil {
+		return
+	}
+	dataFile.Close()
+	p.Buffer = inData
 }
 
 // GetPlayerBuffer returns a pointer to the PlayerBuffer

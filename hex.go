@@ -11,10 +11,10 @@ func main() {
 	var char rune = '.'
 	var ev ui.Event
 	g := game.NewGame()
-	g.GetPlayerBuffer().Allocate().Life = game.LifeMortal
+	g.LoadPlayerBuffer("testFile")
+	//g.GetPlayerBuffer().Allocate().Life = game.LifeMortal
 	g.UpdateMatrix()
-	defer fmt.Printf("%v\n", g.At(0,0))
-	defer ui.Uninit()
+	g.Write("This is a log!")
 loop:
 	for {
 		ui.Clear()
@@ -23,7 +23,9 @@ loop:
 				ui.DrawRune(x, y, char)
 			}
 		}
-		ui.Print(0, 0, fmt.Sprintf("%v", g.At(0,0)))
+		for i, v := range g.Read(8) {
+			ui.Print(0, 17+i, v)
+		}
 		ui.Update()
 		switch ev = ui.GetEvent(); ev.Key {
 		case 'q':
@@ -36,4 +38,8 @@ loop:
 			// do mouse stuff here
 		}
 	}
+	ui.Uninit()
+	//g.Write("%v", g.GetPlayerBuffer().Serialize("testFile"))
+	g.Write("%v", g.At(0,0))
+	fmt.Println(g.Read(32))
 }
