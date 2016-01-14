@@ -1,42 +1,26 @@
 package game
 
-var LifeStates = []LifeState{ Mortal{}, Vampire{} }
+var LifeMortal = Mortal{}
+var LifeVampire = Vampire{}
 
 type LifeState interface{
-	Alive(Body) bool
-	Update(*Body)
-	Move(*Body, int, int, *Game)
+	Alive(*Player) bool
+	Update(*Game, *Player)
+	Move(*Game, *Player, int, int)
 }
 
-type Mortal struct{
-}
+type Mortal struct{}
 
-func (m Mortal) Alive(b Body) bool {
-	return b.Hunger > 0 && b.Thirst > 0
-}
+func (m Mortal) Alive(p *Player) bool { return true }
 
-func (m Mortal) Update(b *Body) {
-	b.Hunger = b.Hunger - 1
-	b.Thirst = b.Thirst - 1
-}
+func (m Mortal) Update(g *Game, p *Player) {}
 
-func (m Mortal) Move(b *Body, x, y int, g *Game) {
-	x, y = x+b.X, y+b.Y
-	if ValidFieldPos(x, y) { // if the new position is valid
-		if g.PosMatrix.At(x, y) == nil {
-			g.PosMatrix.Set(b.X, b.Y, nil)
-			b.X, b.Y = x, y
-		}
-	}
-}
+func (m Mortal) Move(g *Game, p *Player, x int, y int) {}
 
-type Vampire struct{
-}
+type Vampire struct{}
 
-func (v Vampire) Alive(b Body) bool {
-	return b.Thirst > 0
-}
+func (m Vampire) Alive(p *Player) bool { return true }
 
-func (v Vampire) Update(b *Body) {}
+func (m Vampire) Update(g *Game, p *Player) {}
 
-func (v Vampire) Move(b *Body, x, y int, g *Game) {}
+func (m Vampire) Move(g *Game, p *Player, x int, y int) {}
