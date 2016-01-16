@@ -28,7 +28,7 @@ loop:
 				}
 			}
 		}
-		for i, v := range g.Read(8) {
+		for i, v := range g.Read(7) {
 			ui.Print(0, 17+i, v)
 		}
 		ui.Update()
