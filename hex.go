@@ -13,16 +13,19 @@ func main() {
 	g := game.NewGame()
 	defer g.DumpLog()
 	defer ui.Uninit()
-	g.GetPlayerBuffer().Allocate().LifeStateIndex = 1
-	g.Write("Result of saving: %v", g.Serialize("test"))
-	g.Write("Result of loading: %v", g.LoadPlayerBuffer("test"))
-	g.Write("Value at (0,0): %v", g.At(0,0).LifeStateIndex)
+	g.LoadPlayerBuffer("test")
+	defer g.Serialize("test")
 loop:
-	for {
+	for mainPlayer := &g.GetPlayerBuffer()[0]; mainPlayer.Used; {
+		g.UpdateMatrix()
 		ui.Clear()
 		for x = 0; x < game.FieldSize; x++ {
 			for y = 0; y < game.FieldSize; y++ {
-				ui.DrawRune(x, y, char)
+				if player := g.At(x, y); player != nil {
+					ui.DrawRune(x, y, '@')
+				} else {
+					ui.DrawRune(x, y, char)
+				}
 			}
 		}
 		for i, v := range g.Read(8) {
@@ -33,9 +36,13 @@ loop:
 		case 'q':
 			break loop
 		case '8': // Move up
+			mainPlayer.Move(0,-1)
 		case '2': // down
+			mainPlayer.Move(0, 1)
 		case '4': // left
+			mainPlayer.Move(-1,0)
 		case '6': // right
+			mainPlayer.Move(1, 0)
 		default:
 			g.Write("Input not recognized.")
 		}

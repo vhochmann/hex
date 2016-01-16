@@ -12,3 +12,10 @@ type Player struct{
 func (p *Player) Kill() {
 	p.Used = false
 }
+
+func (p *Player) Move(x, y int) {
+	if ValidFieldPos(p.X + x, p.Y + y) {
+		p.X = p.X + x
+		p.Y = p.Y + y
+	}
+}
