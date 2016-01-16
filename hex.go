@@ -13,10 +13,10 @@ func main() {
 	g := game.NewGame()
 	defer g.DumpLog()
 	defer ui.Uninit()
-	g.GetPlayerBuffer().Allocate().Life = game.LifeMortal
-	//g.Write("Result of saving: %v", g.Serialize("test"))
+	g.GetPlayerBuffer().Allocate().LifeStateIndex = 1
+	g.Write("Result of saving: %v", g.Serialize("test"))
 	g.Write("Result of loading: %v", g.LoadPlayerBuffer("test"))
-	g.Write("Value at 0, 0: %v", g.At(0,0))
+	g.Write("Value at (0,0): %v", g.At(0,0).LifeStateIndex)
 loop:
 	for {
 		ui.Clear()
@@ -37,7 +37,7 @@ loop:
 		case '4': // left
 		case '6': // right
 		default:
-			// do mouse stuff here
+			g.Write("Input not recognized.")
 		}
 	}
 }

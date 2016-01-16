@@ -5,7 +5,7 @@ type Player struct{
 	Body
 	Inventory
 	Used bool
-	Life LifeState
+	LifeStateIndex int
 }
 
 // Kill is a player method so we can kill it anytime in the game loop.

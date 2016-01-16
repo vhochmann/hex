@@ -22,7 +22,9 @@ func init() {
 		fmt.Println("Termbox initialization error...")
 	}
 	termbox.SetOutputMode(termbox.Output256)
-	termbox.SetInputMode(termbox.InputMouse | termbox.InputEsc)
+	termbox.SetInputMode(termbox.InputEsc)
+	// Mouse support is disabled, for now; might make a comeback later
+	//termbox.SetInputMode(termbox.InputMouse | termbox.InputEsc)
 }
 
 func Uninit() {

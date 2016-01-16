@@ -38,6 +38,16 @@ func (p *PlayerBuffer) GenerateMatrix() PlayerMatrix {
 	return out
 }
 
+func (p *PlayerBuffer) Allocated() int {
+	var out int
+	for i := range p {
+		if p[i].Used {
+			out++
+		}
+	}
+	return out
+}
+
 // PlayerMatrix lets the PlayerSpace look up players by position
 type PlayerMatrix [FieldSize][FieldSize]*Player
 
@@ -51,24 +61,32 @@ type PlayerSpace struct{
 
 func (p *PlayerSpace) Serialize(filename string) error {
 	dataFile, err := os.Create(fmt.Sprintf("data/save/%s.gob", filename))
-	if err == nil {
-		enc := gob.NewEncoder(dataFile)
-		enc.Encode(p.Buffer)
-		dataFile.Close()
-		return nil
-	}
-	return err
-}
-
-func (p *PlayerSpace) LoadPlayerBuffer(filename string) error {
-	dataFile, err := os.Open(fmt.Sprintf("data/save/%s.gob", filename))
+	defer dataFile.Close()
 	if err != nil {
 		return err
 	}
-	
-	dec := gob.NewDecoder(dataFile)
-	err = dec.Decode(&p.Buffer)
-	dataFile.Close()
+
+	err = gob.NewEncoder(dataFile).Encode(p.Buffer)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *PlayerSpace) LoadPlayerBuffer(filename string) error {
+	var newBuff = PlayerBuffer{}
+	dataFile, err := os.Open(fmt.Sprintf("data/save/%s.gob", filename))
+	defer dataFile.Close()
+	if err != nil {
+		return err
+	}
+	err = gob.NewDecoder(dataFile).Decode(&newBuff)
+	if err != nil {
+		return err
+	}
+
+	p.Buffer = newBuff
 	p.UpdateMatrix()
 	return nil
 }

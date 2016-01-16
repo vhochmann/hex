@@ -1,9 +1,9 @@
 package game
 
-var (
-	LifeMortal = Mortal{}
-	LifeVampire = Vampire{}
-)
+var LifeStates = []LifeState{
+	Mortal{},
+	Vampire{},
+}
 
 type Mortal struct{}
 

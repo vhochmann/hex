@@ -3,13 +3,13 @@ package game
 const NullChar rune = '?' // Indicates some bs is going on in the char dept
 
 type Character struct{
-	char rune
+	Char rune
 }
 
 func (c *Character) SetChar(r rune) {
-	c.char = r
+	c.Char = r
 }
 
-func (c *Character) Char() rune {
-	return c.char
+func (c *Character) GetChar() rune {
+	return c.Char
 }
