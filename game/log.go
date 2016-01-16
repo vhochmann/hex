@@ -21,3 +21,9 @@ func (l *Log) Read(n int) []string {
 	}
 	return l.Entries[len(l.Entries)-n:]
 }
+
+func (l *Log) DumpLog() {
+	for _, v := range l.Entries {
+		fmt.Println(v)
+	}
+}

@@ -12,17 +12,6 @@ const PlayerBufferSize int = 128
 // PlayerBuffer is an array of Players
 type PlayerBuffer [PlayerBufferSize]Player
 
-func (p *PlayerBuffer) Serialize(filename string) error {
-	dataFile, err := os.Create(fmt.Sprintf("data/save/%s.gob", filename))
-	if err == nil {
-		enc := gob.NewEncoder(dataFile)
-		enc.Encode(p)
-		dataFile.Close()
-		return nil
-	}
-	return err
-}
-
 // Allocate returns a pointer to an available Player, and nil if the
 // buffer is full.
 func (p *PlayerBuffer) Allocate() *Player {
@@ -37,16 +26,16 @@ func (p *PlayerBuffer) Allocate() *Player {
 
 // GenerateMatrix plots all used Players onto a 2D Matrix, caching their
 // position by use of index
-func (p *PlayerBuffer) GenerateMatrix() (out PlayerMatrix) {
-	mat := &out
+func (p *PlayerBuffer) GenerateMatrix() PlayerMatrix {
+	var out = PlayerMatrix{}
 	for i := range p {
 		if player := &p[i]; player.Used {
-			if mat[player.X][player.Y] == nil {
-				mat[player.X][player.Y] = player
+			if out[player.X][player.Y] == nil {
+				out[player.X][player.Y] = player
 			}
 		}
 	}
-	return
+	return out
 }
 
 // PlayerMatrix lets the PlayerSpace look up players by position
@@ -60,20 +49,28 @@ type PlayerSpace struct{
 	Matrix PlayerMatrix
 }
 
-func (p *PlayerSpace) LoadPlayerBuffer(filename string) {
-	var inData PlayerBuffer
+func (p *PlayerSpace) Serialize(filename string) error {
+	dataFile, err := os.Create(fmt.Sprintf("data/save/%s.gob", filename))
+	if err == nil {
+		enc := gob.NewEncoder(dataFile)
+		enc.Encode(p.Buffer)
+		dataFile.Close()
+		return nil
+	}
+	return err
+}
+
+func (p *PlayerSpace) LoadPlayerBuffer(filename string) error {
 	dataFile, err := os.Open(fmt.Sprintf("data/save/%s.gob", filename))
 	if err != nil {
-		return
+		return err
 	}
 	
 	dec := gob.NewDecoder(dataFile)
-	err = dec.Decode(&inData)
-	if err != nil {
-		return
-	}
+	err = dec.Decode(&p.Buffer)
 	dataFile.Close()
-	p.Buffer = inData
+	p.UpdateMatrix()
+	return nil
 }
 
 // GetPlayerBuffer returns a pointer to the PlayerBuffer
@@ -96,8 +93,10 @@ func (p *PlayerSpace) UpdateMatrix() {
 // and nil if there is not a player there.
 func (p *PlayerSpace) At(x, y int) *Player {
 	if ValidFieldPos(x, y) {
-		if player := p.Matrix[x][y]; player.Used { // return a pointer to the player only if it's considered 'alive' to the buffer
-			return player
+		if player := p.GetPlayerMatrix()[x][y]; player != nil { // return a pointer to the player only if it's considered 'alive' to the buffer
+			if player.Used {
+				return player
+			}
 		}
 	}
 	return nil

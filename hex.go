@@ -1,7 +1,7 @@
 package main
 
 import(
-	"fmt"
+	//"fmt"
 	"github.com/vhochmann/hex/game"
 	"github.com/vhochmann/hex/ui"
 )
@@ -11,10 +11,12 @@ func main() {
 	var char rune = '.'
 	var ev ui.Event
 	g := game.NewGame()
-	g.LoadPlayerBuffer("testFile")
-	//g.GetPlayerBuffer().Allocate().Life = game.LifeMortal
-	g.UpdateMatrix()
-	g.Write("This is a log!")
+	defer g.DumpLog()
+	defer ui.Uninit()
+	g.GetPlayerBuffer().Allocate().Life = game.LifeMortal
+	//g.Write("Result of saving: %v", g.Serialize("test"))
+	g.Write("Result of loading: %v", g.LoadPlayerBuffer("test"))
+	g.Write("Value at 0, 0: %v", g.At(0,0))
 loop:
 	for {
 		ui.Clear()
@@ -38,8 +40,4 @@ loop:
 			// do mouse stuff here
 		}
 	}
-	ui.Uninit()
-	//g.Write("%v", g.GetPlayerBuffer().Serialize("testFile"))
-	g.Write("%v", g.At(0,0))
-	fmt.Println(g.Read(32))
 }
