@@ -1,5 +1,7 @@
 package game
 
+var NullPlayer = &Player{}
+
 type Player struct{
 	Character
 	Body
@@ -18,4 +20,11 @@ func (p *Player) Move(x, y int) {
 		p.X = p.X + x
 		p.Y = p.Y + y
 	}
+}
+
+func (p *Player) LifeState() *LifeState {
+	if p.LifeStateIndex < len(LifeStates) {
+		return &LifeStates[p.LifeStateIndex]
+	}
+	return nil
 }

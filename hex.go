@@ -7,16 +7,23 @@ import(
 )
 
 func main() {
+	Run(nil)
+}
+
+func orig() {
 	var x, y int
 	var char rune = '.'
 	var ev ui.Event
-	g := game.NewGame()
+	g := game.NewGame() // init
 	defer g.DumpLog()
 	defer ui.Uninit()
-	g.LoadPlayerBuffer("test")
-	defer g.Serialize("test")
+	g.Write("got this far!")
+	g.LoadPlayerBuffer("test") // init
+	defer g.PlayerSpace.Serialize("test") // save
+	g.Write("loaded stuff!")
 loop:
-	for mainPlayer := &g.GetPlayerBuffer()[0]; mainPlayer.Used; {
+	for mainPlayer := &g.GetPlayerBuffer()[0]; mainPlayer.Used; { // loop fails because of this code; your current task should be to create a state machine
+		g.Write("loopin'")
 		g.UpdateMatrix()
 		ui.Clear()
 		for x = 0; x < game.FieldSize; x++ {
