@@ -6,10 +6,13 @@ import(
 	"fmt"
 )
 
-// PlayerBufferSize defines the size of our one PlayerBuffer
+// PlayerBufferSize defines the size of our one PlayerBuffer.
+// This functions as an absolute limit on the number of players that can
+// exist at the same time.
 const PlayerBufferSize int = 128
 
-// PlayerBuffer is an array of Players
+// PlayerBuffer is an array of Players. It's serial, so iteration is
+// fast
 type PlayerBuffer [PlayerBufferSize]Player
 
 // Allocate returns a pointer to an available Player, and nil if the
@@ -25,7 +28,7 @@ func (p *PlayerBuffer) Allocate() *Player {
 }
 
 // GenerateMatrix plots all used Players onto a 2D Matrix, caching their
-// position by use of index
+// position by two dimensional index
 func (p *PlayerBuffer) GenerateMatrix() PlayerMatrix {
 	var out = PlayerMatrix{}
 	for i := range p {
@@ -38,6 +41,8 @@ func (p *PlayerBuffer) GenerateMatrix() PlayerMatrix {
 	return out
 }
 
+// Allocated returns the total number of Players in the array that are
+// currently in use, or "alive"
 func (p *PlayerBuffer) Allocated() int {
 	var out int
 	for i := range p {
@@ -48,17 +53,24 @@ func (p *PlayerBuffer) Allocated() int {
 	return out
 }
 
-// PlayerMatrix lets the PlayerSpace look up players by position
+// PlayerMatrix stores pointers to Players by index, according to their
+// coordinates. So, as long as a matrix is up-to-date, it will provide
+// fast checking of coordinates, eliminating the need to iterate over
+// players that might be unused, or not even close to the target
+// position.
 type PlayerMatrix [FieldSize][FieldSize]*Player
 
 // PlayerSpace combines a Buffer and a Matrix to form an object that
-// manages Players. This pattern will be duplicated for particles
-// and other game objects like items.
+// manages Players. This pattern will be duplicated for particles, but
+// probably not items. See the file 'featurelist' for why items are
+// complicated.
 type PlayerSpace struct{
 	Buffer PlayerBuffer
 	Matrix PlayerMatrix
 }
 
+// Serialize stores the current array under the given filename, as a 
+// gob file.
 func (p *PlayerSpace) Serialize(filename string) error {
 	dataFile, err := os.Create(fmt.Sprintf("data/save/%s.gob", filename))
 	defer dataFile.Close()
@@ -74,6 +86,7 @@ func (p *PlayerSpace) Serialize(filename string) error {
 	return nil
 }
 
+// LoadPlayerBuffer does just that, from the given filename
 func (p *PlayerSpace) LoadPlayerBuffer(filename string) error {
 	var newBuff = PlayerBuffer{}
 	dataFile, err := os.Open(fmt.Sprintf("data/save/%s.gob", filename))
