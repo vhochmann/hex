@@ -15,6 +15,12 @@ func (l *Log) Write(s string, args ...interface{}) {
 	} 
 }
 
+func (l *Log) DebugWrite(s string, args ...interface{}) {
+	if Debug {
+		l.Write(s, args...)
+	}
+}
+
 func (l *Log) Read(n int) []string {
 	if n >= len(l.Entries) {
 		return l.Entries

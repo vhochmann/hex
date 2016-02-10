@@ -3,10 +3,71 @@ Blah blah blah...
 It's a Feature List for Hex!
 ----
 
-1. Corporeal Exisistence
-2. Movin' Around
-3. Persistence
+1. Corporeal Exisistence X
+2. Movin' Around X
+3. Persistence X
 4. Items
+	So, I'm not sure how I want to implement items. Players being allocated
+	on the heap works because there's an understandable limit to how many
+	players can be in the world at a time. Items are much more numerous,
+	as well as nebulous. An item might be say a potion that has no
+	individual stats, or it could be a helmet that does.
+	The distinction being that a potion should take up a very small amount
+	of memory space, while a wearable equipment with customizations would
+	be quite larger, relatively. The problem is further compounded by
+	the fact that items should be able to be stored in containers, be it
+	a player inventory, or a chest, or an npc store. For design sake,
+	I'll brainstorm here.
+	
+	An Item is an object that can be stored in containers, or the overworld,
+	and mirrors *exactly* some base item. They can be stacked to some
+	arbitrary limit since their uniqueness is moot. Examples: health potion,
+	equipment dye, pizza, etc.
+	
+		BaseItemIndex, Num, Position (4 ints)
+	
+	A UniqueItem is an Item that has customizable fields. UniqueItems are
+	not stackable! Examples: pickaxe of burning, broken helm, cursed dildo,
+	etc.
+		They still refer to a base item to determine function, but would
+		enumerate their total stats.
+		
+		BaseItemIndex, Position, Other Variables...
+	
+	In terms of memory layout, an Item would simply be an item type, a position,
+	and a number describing how many are stacked.
+	
+	A UniqueItem is a little more complicated, though. It would be an item type,
+	a position, and then whatever unique variables each item subtype would
+	require. Now, wrapping behavior up into interfaces is not a problem, and
+	it's really very easy with Go, but now we can't really store UniqueItems
+	together in serial arrays, because they are dynamic objects that won't have
+	the same memory footprint. That would be ok, if we never had to iterate
+	over them.
+	
+	Hmm. There's an idea. If I chose serial arrays to represent objects that
+	need to be iterated over often, and I don't need to iterate over UniqueItems,
+	then does it make more sense to store them non-serially? Let's think about
+	this.
+	
+	If a character picks up a UniqueItem, they can append it to their internal
+	list of inventory items. When I serialize a character, will that item be
+	serialized, too? That's worth testing. Will report on result.
+	
+	So! It turns out yes, you can serialize objects as an interface, you
+	just need to register them, first. That works. I need to figure out
+	what *kinds* of UniqueItems there will be (equipment, weapons, etc.),
+	and then just register each type of UniqueItem.
+	
+	So the rule will look like this:
+		If an item requires a different memory footprint than what is
+		currently defined, create a new type, and make sure you register
+		in in the runtime code.
+		
+	Otherwise, all items should implement code that allows them to be
+	picked up, dropped, stored, sold, bought, etc.
+
+
 5. Picking Up Items
 6. Dropping Items
 7. Using Items
