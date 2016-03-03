@@ -34,3 +34,19 @@ func (g *Game) HandleInput(c rune) {
 		g.Write("Debug set to %v", Debug)
 	}
 }
+
+func (g *Game) Save(filename string) error {
+	var err error
+	if err = g.Serialize(filename); err != nil {
+		return err
+	}
+	return err
+}
+
+func (g *Game) Load(filename string) error {
+	var err error
+	if err = g.LoadPlayerBuffer(filename); err != nil {
+		return err
+	}
+	return err
+}

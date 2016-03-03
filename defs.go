@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"fmt"
 	"github.com/vhochmann/hex/game"
 	"github.com/vhochmann/hex/ui"
@@ -38,6 +39,30 @@ func TitleState(g *game.Game) (State, *game.Game) {
 	return MenuState, g
 }
 
+func SaveState(g *game.Game) (State, *game.Game) {
+	ui.Clear()
+	ui.Print(0,0,"Saving...")
+	if err := g.Save("test"); err != nil {
+		g.DebugWrite("%v", err)
+	}
+	ui.PrintSliceAtBottom(g.Read(8))
+	ui.Update()
+	time.Sleep(time.Millisecond * 200)
+	return PlayState, g
+}
+
+func LoadState(g *game.Game) (State, *game.Game) {
+	ui.Clear()
+	ui.Print(0, 0, "Loading...")
+	if err := g.Load("test"); err != nil {
+		g.DebugWrite("%v", err)
+	}
+	ui.PrintSliceAtBottom(g.Read(8))
+	ui.Update()
+	time.Sleep(time.Millisecond*200)
+	return PlayState, g
+}
+
 func MenuState(g *game.Game) (State, *game.Game) {
 	var offSet = 4
 	var current = 0
@@ -48,6 +73,8 @@ func MenuState(g *game.Game) (State, *game.Game) {
 		val State
 	}{
 		{"Play", PlayState},
+		{"Save", SaveState},
+		{"Load", LoadState},
 		{"Exit", ExitState},
 	}
 menu:
