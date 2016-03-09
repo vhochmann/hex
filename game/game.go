@@ -1,52 +1,26 @@
 package game
 
+import(
+	"math/rand"
+	"github.com/vhochmann/hex/engine"
+)
+
 type Game struct{
-	PlayerSpace
 	Log
-	Focus *Player
+	Players PlayerSpace
 }
 
 func NewGame() *Game {
-	return new(Game)
+	return &Game{}
 }
 
-func (g *Game) SetFocus(p *Player) {
-	if p == nil {
-		g.DebugWrite("Warning: Game Focus set to nil")
+func (g *Game) Spawn() *Player {
+	x, y := float32(rand.Intn(16)), float32(rand.Intn(16))
+	plyr, err := g.Players.Spawn(engine.Vec(x,y), engine.Vec(0.2,0.2), 0.5)
+	if err != nil {
+		g.Write("%s", err)
+		return nil
 	}
-	g.Focus = p
-}
-
-func (g *Game) GetFocus() *Player {
-	if g.Focus != nil {
-		return g.Focus
-	}
-	return NullPlayer
-}
-
-// HandleInput handles standard key presses. Once a user provides a key
-// press, each State can choose to call this function to enable
-// standard Game functionality, such as toggling debug state, etc.
-func (g *Game) HandleInput(c rune) {
-	switch c {
-	case 'd':
-		SetDebug(!Debug)
-		g.Write("Debug set to %v", Debug)
-	}
-}
-
-func (g *Game) Save(filename string) error {
-	var err error
-	if err = g.Serialize(filename); err != nil {
-		return err
-	}
-	return err
-}
-
-func (g *Game) Load(filename string) error {
-	var err error
-	if err = g.LoadPlayerBuffer(filename); err != nil {
-		return err
-	}
-	return err
+	g.Write("new spawn at %f, %f", x, y)
+	return plyr
 }

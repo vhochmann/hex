@@ -1,30 +1,14 @@
 package game
 
-var NullPlayer = &Player{}
+import(
+	"github.com/vhochmann/hex/engine"
+)
 
 type Player struct{
-	Character
-	Body
-	Inventory
-	Used bool
-	LifeStateIndex int
+	engine.Mover
+	Alive bool
 }
 
-// Kill is a player method so we can kill it anytime in the game loop.
-func (p *Player) Kill() {
-	p.Used = false
-}
-
-func (p *Player) Move(x, y int) {
-	if ValidFieldPos(p.X + x, p.Y + y) {
-		p.X = p.X + x
-		p.Y = p.Y + y
-	}
-}
-
-func (p *Player) LifeState() *LifeState {
-	if p.LifeStateIndex < len(LifeStates) {
-		return &LifeStates[p.LifeStateIndex]
-	}
-	return nil
+func NewPlayer(pos, vel engine.Vector) Player {
+	return Player{engine.Mover{pos, vel, 0.5}, false}
 }

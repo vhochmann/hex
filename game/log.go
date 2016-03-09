@@ -2,6 +2,9 @@ package game
 
 import "fmt"
 
+// Debug controls visibility of debug messages
+var Debug bool
+
 // LogSize defines the log's max number of entries
 const LogSize = 32
 
@@ -16,7 +19,7 @@ func (l *Log) Write(s string, args ...interface{}) {
 	l.Entries = append(l.Entries, fmt.Sprintf(s, args...))
 	if len(l.Entries) > LogSize {
 		l.Entries = l.Entries[len(l.Entries)-LogSize:]
-	} 
+	}
 }
 
 // DebugWrite does the same thing as Write, but only appends the entry

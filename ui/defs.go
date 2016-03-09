@@ -13,6 +13,7 @@ const(
 	DOWN
 	LEFT
 	RIGHT
+	ESC
 )
 
 type Event struct{
@@ -115,6 +116,8 @@ func GetEvent() Event {
 				out.Key = RIGHT
 			case termbox.KeyEnter:
 				out.Key = ENTER
+			case termbox.KeyEsc:
+				out.Key = ESC
 			}
 		}
 	}
